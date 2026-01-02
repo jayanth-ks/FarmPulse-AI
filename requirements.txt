@@ -1,0 +1,17 @@
+# Flask Application
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# AI Integration
+groq
+python-dotenv
+
+# API Documentation
+flask-swagger-ui
+
+# Database & Auth
+supabase==2.3.4
+firebase-admin==6.4.0
+
+# Utilities
+python-dateutil
