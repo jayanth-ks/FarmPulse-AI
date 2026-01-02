@@ -1,5 +1,0 @@
-User-agent: *
-Disallow: /api/predict
-Disallow: /api/analyze
-Disallow: /api/
-Allow: /
