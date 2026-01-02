@@ -1,0 +1,22 @@
+# Flask Application
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Machine Learning
+tensorflow>=2.13.0
+numpy>=1.24.3
+Pillow==10.0.0
+
+# AI Integration
+groq
+python-dotenv
+
+# API Documentation
+flask-swagger-ui
+
+# Database & Auth
+supabase==2.3.4
+firebase-admin==6.4.0
+
+# Utilities
+python-dateutil
