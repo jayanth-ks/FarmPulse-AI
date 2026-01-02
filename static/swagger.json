@@ -1,0 +1,304 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FarmPulse AI - Plant Disease Detection API",
+    "description": "Comprehensive API for detecting and analyzing plant diseases using AI models and computer vision",
+    "version": "1.0.0",
+    "contact": {
+      "name": "FarmPulse AI Support",
+      "email": "support@farmpulse.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Prediction",
+      "description": "Disease prediction and analysis endpoints"
+    },
+    {
+      "name": "Health",
+      "description": "System health and status endpoints"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Check API status and configuration",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "model_loaded": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "groq_configured": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/predict": {
+      "post": {
+        "tags": ["Prediction"],
+        "summary": "Predict disease using EfficientNet model",
+        "description": "Upload a plant image to get disease predictions using the EfficientNet B3 model",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Plant image file (JPEG, PNG)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful prediction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prediction": {
+                      "type": "string",
+                      "example": "Tomato___Early_blight"
+                    },
+                    "confidence": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 0.956
+                    },
+                    "top_predictions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "class": {
+                            "type": "string"
+                          },
+                          "confidence": {
+                            "type": "number",
+                            "format": "float"
+                          }
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analyze": {
+      "post": {
+        "tags": ["Prediction"],
+        "summary": "Analyze disease using Groq AI Vision",
+        "description": "Upload a plant image for comprehensive AI analysis including disease identification, causes, and solutions",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Plant image file (JPEG, PNG)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DiseaseDetected"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HealthyPlant"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DiseaseDetected": {
+        "type": "object",
+        "properties": {
+          "disease_detected": {
+            "type": "boolean",
+            "example": true
+          },
+          "disease_name": {
+            "type": "string",
+            "example": "Early Blight"
+          },
+          "confidence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 85
+          },
+          "crop_type": {
+            "type": "string",
+            "example": "Tomato"
+          },
+          "probable_cause": {
+            "type": "string",
+            "example": "Fungal infection caused by Alternaria solani"
+          },
+          "description": {
+            "type": "string",
+            "example": "Early blight appears as brown spots with concentric rings"
+          },
+          "solution": {
+            "type": "string",
+            "example": "Remove affected leaves, apply copper-based fungicide"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["Low", "Medium", "High"],
+            "example": "Medium"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "HealthyPlant": {
+        "type": "object",
+        "properties": {
+          "disease_detected": {
+            "type": "boolean",
+            "example": false
+          },
+          "confidence": {
+            "type": "integer",
+            "example": 95
+          },
+          "crop_type": {
+            "type": "string",
+            "example": "Tomato"
+          },
+          "message": {
+            "type": "string",
+            "example": "Congratulations! Your crop appears to be healthy."
+          },
+          "severity": {
+            "type": "string",
+            "example": "None"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "No file uploaded"
+          }
+        }
+      }
+    }
+  }
+}
