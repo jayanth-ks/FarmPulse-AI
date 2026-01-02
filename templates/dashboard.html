@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FarmPulse AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-green-600 text-white px-4 py-4 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-seedling text-2xl"></i>
+            <span class="text-xl font-bold">FarmPulse AI</span>
+        </div>
+        <a href="/logout" class="text-white hover:text-green-100">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-md mx-auto px-4 py-6 space-y-4">
+        <!-- Sensor Readings -->
+        <!-- Soil Moisture -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-tint text-blue-500 text-xl"></i>
+                </div>
+                <span class="text-gray-400 text-sm">Soil Moisture</span>
+            </div>
+            <div id="soilValue" class="text-4xl font-bold text-gray-800 mb-1">{{ sensor_data.soil_moisture }}%</div>
+            <div class="text-green-500 text-sm font-medium">Optimal</div>
+        </div>
+
+        <!-- Temperature -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-thermometer-half text-red-500 text-xl"></i>
+                </div>
+                <span class="text-gray-400 text-sm">Temperature</span>
+            </div>
+            <div id="tempValue" class="text-4xl font-bold text-gray-800 mb-1">{{ sensor_data.temperature }}°C</div>
+            <div class="text-gray-500 text-sm">Normal range</div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-wind text-cyan-500 text-xl"></i>
+                </div>
+                <span class="text-gray-400 text-sm">Humidity</span>
+            </div>
+            <div id="humValue" class="text-4xl font-bold text-gray-800 mb-1">{{ sensor_data.humidity }}%</div>
+            <div class="text-gray-500 text-sm">Moderate</div>
+        </div>
+
+        <!-- Pump Status -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <div class="flex items-start justify-between mb-3">
+                <div id="pumpIcon" class="w-12 h-12 {% if sensor_data.pump_status %}bg-green-200{% else %}bg-gray-200{% endif %} rounded-full flex items-center justify-center">
+                    <i class="fas fa-power-off {% if sensor_data.pump_status %}text-green-600{% else %}text-gray-500{% endif %} text-xl"></i>
+                </div>
+                <span class="text-gray-400 text-sm">Pump Status</span>
+            </div>
+            <div id="pumpStatusText" class="text-4xl font-bold {% if sensor_data.pump_status %}text-green-600{% else %}text-gray-400{% endif %} mb-1">{% if sensor_data.pump_status %}ON{% else %}OFF{% endif %}</div>
+            <div class="text-gray-500 text-sm">Mode: <span id="pumpModeText">{{ sensor_data.pump_mode }}</span></div>
+        </div>
+
+        <!-- Pump Controls -->
+        <div class="bg-white rounded-2xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Pump Controls</h3>
+            
+            <!-- Mode Selection -->
+            <div class="mb-4">
+                <label class="text-sm font-medium text-gray-600 mb-2 block">Mode</label>
+                <button id="autoModeBtn" class="w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-blue-600 transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-robot"></i>
+                    <span>AUTO MODE</span>
+                </button>
+            </div>
+
+            <!-- Manual Control -->
+            <div class="mb-4">
+                <label class="text-sm font-medium text-gray-600 mb-2 block">Manual Control</label>
+                <button id="manualTurnOnBtn" class="w-full bg-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-400 transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-play"></i>
+                    <span>TURN ON</span>
+                </button>
+            </div>
+
+            <div class="text-center text-xs text-gray-400">
+                Last updated: <span id="lastUpdate">15:54:27</span>
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons 
+        <div class="grid grid-cols-2 gap-4 pt-2">
+            <button class="bg-green-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:bg-green-600 transition flex flex-col items-center justify-center space-y-2">
+                <i class="fas fa-camera text-2xl"></i>
+                <span class="text-sm">Scan</span>
+            </button>
+            <a href="/history" class="bg-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:bg-blue-600 transition flex flex-col items-center justify-center space-y-2">
+                <i class="fas fa-history text-2xl"></i>
+                <span class="text-sm">History</span>
+            </a>
+        </div>
+        <br>
+        <br>
+        <br>-->
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+        <div class="grid grid-cols-3 max-w-md mx-auto">
+            <a href="/dashboard" class="flex flex-col items-center justify-center py-3 text-green-600">
+                <i class="fas fa-seedling text-xl mb-1"></i>
+                <span class="text-xs font-medium">Dashboard</span>
+            </a>
+            <a href="/scan" class="flex flex-col items-center justify-center py-3 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-camera text-xl mb-1"></i>
+                <span class="text-xs">Scan</span>
+            </a>
+            <a href="/history" class="flex flex-col items-center justify-center py-3 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-history text-xl mb-1"></i>
+                <span class="text-xs">History</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        let pumpMode = 'auto';
+        let pumpOn = false;
+        
+        // Fetch and update sensor data
+        async function updateSensorData() {
+            try {
+                const response = await fetch('/api/sensor-data');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // Update UI
+                    document.getElementById('soilValue').textContent = data.soil_moisture + '%';
+                    document.getElementById('tempValue').textContent = data.temperature + '°C';
+                    document.getElementById('humValue').textContent = data.humidity + '%';
+                    
+                    // Update pump status
+                    const pumpStatusText = document.getElementById('pumpStatusText');
+                    const pumpIcon = document.getElementById('pumpIcon');
+                    
+                    if (data.pump_status) {
+                        pumpStatusText.textContent = 'ON';
+                        pumpStatusText.className = 'text-4xl font-bold text-green-600 mb-1';
+                        pumpIcon.className = 'w-12 h-12 bg-green-200 rounded-full flex items-center justify-center';
+                        pumpIcon.querySelector('i').className = 'fas fa-power-off text-green-600 text-xl';
+                        pumpOn = true;
+                    } else {
+                        pumpStatusText.textContent = 'OFF';
+                        pumpStatusText.className = 'text-4xl font-bold text-gray-400 mb-1';
+                        pumpIcon.className = 'w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center';
+                        pumpIcon.querySelector('i').className = 'fas fa-power-off text-gray-500 text-xl';
+                        pumpOn = false;
+                    }
+                    
+                    // Update timestamp
+                    const now = new Date();
+                    document.getElementById('lastUpdate').textContent = now.toTimeString().split(' ')[0];
+                }
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+            }
+        }
+
+        // Control pump
+        async function controlPump(status) {
+            try {
+                const response = await fetch('/api/pump-control', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pump_status: status })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    updateSensorData();
+                }
+            } catch (error) {
+                console.error('Error controlling pump:', error);
+            }
+        }
+
+        // Toggle pump mode
+        const autoModeBtn = document.getElementById('autoModeBtn');
+        const manualTurnOnBtn = document.getElementById('manualTurnOnBtn');
+
+        autoModeBtn.addEventListener('click', function() {
+            if (pumpMode === 'auto') {
+                // Switch to manual
+                pumpMode = 'manual';
+                this.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                this.classList.add('bg-gray-300', 'hover:bg-gray-400');
+                this.querySelector('span').textContent = 'MANUAL MODE';
+                document.getElementById('pumpModeText').textContent = 'MANUAL';
+                manualTurnOnBtn.classList.remove('bg-gray-300');
+                manualTurnOnBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                manualTurnOnBtn.classList.remove('text-gray-600');
+                manualTurnOnBtn.classList.add('text-white');
+            } else {
+                // Switch to auto
+                pumpMode = 'auto';
+                this.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                this.classList.remove('bg-gray-300', 'hover:bg-gray-400');
+                this.querySelector('span').textContent = 'AUTO MODE';
+                document.getElementById('pumpModeText').textContent = 'AUTO';
+                manualTurnOnBtn.classList.add('bg-gray-300');
+                manualTurnOnBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                manualTurnOnBtn.classList.add('text-gray-600');
+                manualTurnOnBtn.classList.remove('text-white');
+            }
+        });
+
+        manualTurnOnBtn.addEventListener('click', function() {
+            if (pumpMode === 'manual') {
+                // Toggle pump
+                if (this.classList.contains('bg-green-500')) {
+                    // Turn off
+                    controlPump(false);
+                    this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    this.classList.add('bg-red-500', 'hover:bg-red-600');
+                    this.querySelector('span').textContent = 'TURN OFF';
+                    this.querySelector('i').classList.remove('fa-play');
+                    this.querySelector('i').classList.add('fa-stop');
+                } else {
+                    // Turn on
+                    controlPump(true);
+                    this.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    this.classList.add('bg-green-500', 'hover:bg-green-600');
+                    this.querySelector('span').textContent = 'TURN ON';
+                    this.querySelector('i').classList.remove('fa-stop');
+                    this.querySelector('i').classList.add('fa-play');
+                }
+            }
+        });
+
+        // Update sensor data every 5 seconds
+        setInterval(updateSensorData, 5000);
+        updateSensorData();
+    </script>
+</body>
+</html>
