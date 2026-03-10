@@ -2,6 +2,8 @@
 
 A comprehensive Flask-based web application for detecting plant diseases using AI-powered computer vision and machine learning.
 
+Documentation Link: https://www.electronicwings.com/users/JayanthKS/projects/5957/farmpulse-ai---smart-irrigation-and-plant-disease-detection-system-for-small-farmers
+
 ## 🌟 Features
 
 - **Detection Method**
@@ -210,3 +212,4 @@ For issues or questions:
 ---
 
 Built with ❤️ for smarter farming
+
